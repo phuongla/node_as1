@@ -4,31 +4,49 @@ let fs = require('fs').promise
 let path = require('path')
 let Promise = require('songbird')
 
-async function rm(currentPath) {
+async function rm_file(currentPath, option) {  
   let stats = await fs.stat(currentPath)
-  if (stats.isFile()) {
-    return currentPath
+  if (stats.isFile()) {    
+    await fs.unlink(currentPath)
+    return
   }
-  let fileArray = [currentPath]
   let filenames = await fs.readdir(currentPath)
-  filenames.forEach(async (file) => {
-    let files = await rm(path.join(currentPath, file))
-    fileArray.push(files)
+  if (filenames.length === 0) {
+    fs.rmdir(currentPath)
+    return
+  }
+
+  let promises = []
+  filenames.forEach(file => {
+    let fullPath = path.join(currentPath, file)
+    let promise = rm_file(fullPath, option)
+    promises.push(promise)
   })
-  return fileArray
+  Promise.all(promises)
 }
 
-async function rm1 (dir) {
-  let data = await rm(dir)
-  console.log(data)
-    /*
-    if (err.code === 'EACCES') {
-      process.stdout.write(`rm: ${dir}: Permission denined\n`)
-    } else if (err.code === 'ENOENT') {
-      process.stdout.write(`rm: ${dir}: No such file or directory\n`)
-    } else if (err.code === 'EPERM') {
-      process.stdout.write(`rm: ${dir}: Operation not permitted\n`)
-    }*/
+async function rm_dir(currentPath, option) {  
+  let stats = await fs.stat(currentPath)
+  if (stats.isFile()) {    
+    return
+  }
+  let filenames = await fs.readdir(currentPath)
+  if (filenames.length === 0) {
+    // fs.rmdir(currentPath)
+    console.log('remove dir' + currentPath)
+    return
+  }  
+  filenames.forEach(async (file) => {
+    let fullPath = path.join(currentPath, file)
+    await rm_dir(fullPath, option)
+  })
+  console.log('remove top dir' + currentPath)
+  //await fs.rmdir(currentPath)
+}
+
+async function rm (dir) {
+  await rm_file(dir)  
+  //await rm_dir(dir)
 }
 
 async function run() {
@@ -39,7 +57,7 @@ async function run() {
       dir = path.join(__dirname, dir)
     }
   }
-  await rm1(dir)
+  await rm(dir)
 }
 
 run()

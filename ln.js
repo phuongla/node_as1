@@ -1,45 +1,54 @@
 #!/usr/bin/env babel-node --
 require('./helper')
-let fs = require('fs')
+let fs = require('fs').promise
 let path = require('path')
+let Promise = require('songbird')
 
-async function ln (dir) {
-  fs.promise.access(dir, fs.constants.R_OK).then(async (err) => {
-    if (err) {
-      process.stdout.write(`cat: ${dir}: permission denied\n`)
-      return
-    }
-    let stat = await fs.promise.stat(dir)
-    if (stat.isDirectory()) {
-      process.stdout.write(`cat: ${dir}: Is a directory\n`)
-      return
-    }
-    let data = await fs.promise.readFile(dir, 'utf8')
-    process.stdout.write(data)
-  }).catch(err => {
-    if (err.code === 'EACCES') {
-      process.stdout.write(`cat: ${dir}: permission denied\n`)
-    } else if (err.code === 'ENOENT') {
-      process.stdout.write(`cat: ${dir}: is not exist\n`)
+async function ln(source, dest) {  
+  fs.stat(source).then(async (stat) => {
+    if(stat.isDirectory()) {
+      process.stdout.write(`ln: ${source}: Is a directory\n`)
     } else {
-      process.stdout.write(err.message + '\n')
+      let objSource = path.parse(source)      
+      let objDest = path.parse(dest)    
+      let absDest = dest
+      if(objDest.ext === '') {
+        absDest = path.join(dest, objSource.base)
+      }
+      console.log(absDest)
+      fs.link(source, absDest).catch(err => {
+        if (err.code === 'EEXIST') {
+          process.stdout.write(`ln: ${absDest}: File exists\n`)
+        }
+      })      
+    }    
+  }).catch(err => {
+    console.log(err.message + " --- " + err.code)
+    if (err.code === 'EACCES') {
+      process.stdout.write(`ln: ${source}: Permission denined\n`)
+    } else if (err.code === 'ENOENT') {
+      process.stdout.write(`ln: ${source}: No such file or directory\n`)
     }
   })
+  
 }
 
-async function run() {
-  let dir = __dirname
-  let option = ''
-  if (process.argv.length > 2) {
-    dir = process.argv[process.argv.length - 1]
-    if (!path.isAbsolute(dir)) {
-      dir = path.join(__dirname, dir)
-    }
-  }
+async function run() { 
+  let source = ''
+  let dest = '' 
   if (process.argv.length > 3) {
-    option = process.argv[2]
+    source = process.argv[2]
+    dest = process.argv[3]
+    if (!path.isAbsolute(source)) {
+      source = path.join(__dirname, source)
+    }
+    if (!path.isAbsolute(dest)) {
+      dest = path.join(__dirname, dest)
+    }
+  } else {
+    process.stdout.write(`ls: wrong syntax (./ln.js [source] [dest]) \n`)
   }
-  await ln(dir)
+  await ln(source, dest)
 }
 
 run()

@@ -1,36 +1,30 @@
-# Parallel Asynchronous Recursive `ls`
+# CLI Utilities (CoderSchool node.js assignment 1)
 
-A parallelized recursive implementation of `ls` using `fs.readdir`
+This is a CLI Utilities library for Node.js.
 
-## How To Use:
+Time spent: 14
 
-### Setup
+## Features
 
-1. Follow the [Node.js Setup Guide](http://guides.codepath.com/nodejs/Setup)
-1. Clone the repo:
+### Required
 
-    ```bash
-    git clone git@github.com:CrabDude/nodejs-ls.git
-    ```
+- [x] Completed Requireds marked with `[x]`
+- [x] Walkthrough Gif embedded in README
+- [x] README `Time spent:` includes the number of hours spent on the assignment
+- [x] `echo.js` prints the first argument to stdout
+- [x] `cat.js` prints the contents of the first argument to stdout
+- [x] `touch.js` updates the modified date of the first argument
+- [x] `ls.js` recursively lists the files of the first argument
+- [x] `mkdir.js` create a directory at the first argument
+- [x] `rm.js` deletes any file at the first argument
+- [ ] `rm.js` deletes any directory at the first argument
 
-### Development
+### Optionals
 
-1. Place all your code in `ls.js`'s `async function ls()`:
+- [x] `ln.js` creates a symlink from the second argument to the first argument
+- [x] `grep.js` prints lines matching the first argument in the files matching the second argument
+- [ ] `grep.js` supports a regex as the second arguments
 
-    ```node
-    require('./helper')
+## Walkthrough Gif:
 
-    async function ls() {
-      // Use 'await' inside 'async function's
-      console.log('Executing ls function...')
-      
-      // Your implementation here
-    }
-
-    ls()
-    ```
-1. Run:
-
-    ```bash
-    babel-node ./ls.js
-    ```
+![Video Walkthrough](walkthrough.gif)

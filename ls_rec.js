@@ -1,20 +1,21 @@
 require('./helper')
-const fs = require('fs').promise
-const path = require('path')
-const _ = require('lodash')
-const Promise = require('songbird')
+let fs = require('fs').promise
+let path = require('path')
+let Promise = require('songbird')
+let flatten = require('flatten')
+
 
 async function rc(currentPath, option) {
   if (!fs.access(currentPath)) {
-    return [currentPath]
+    return currentPath
   }
   let stats = await fs.stat(currentPath)
   if (stats.isFile()) {
-    return [currentPath]
+    return currentPath
   }
   let filenames = await fs.readdir(currentPath)
   if (filenames.length === 0) {
-    return [currentPath]
+    return currentPath
   }
   if (option !== '-R') {
     let fileReturn = []
@@ -36,7 +37,7 @@ async function rc(currentPath, option) {
 
 async function ls(dir, option) {
   let data = await rc(dir, option)
-  return _.flatten(data)
+  return flatten(data)
 }
 
 module.exports = ls
